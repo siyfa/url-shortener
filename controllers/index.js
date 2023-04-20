@@ -6,8 +6,58 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-//shorten url
-exports.shortUrl = async (req, res, next) => {
+//redirect to originalurl
+exports.redirectUrl = async (req, res, next) => {
+    try {
+        let pathId = req.params.pathId;
+        //find pathId - url
+        let url = await Url.findOne({pathId});
+        if(!url) return res.status(404).json({"message": "Wrong Url! Not Found"})
+        //continue and redirect
+        url.visits++;
+        await url.save();
+        return res.redirect(url.originalUrl);
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+}
+//stat for url
+exports.statUrl = async (req, res, next) => {
+    try {
+        let pathId = req.params.pathId;
+        //find pathId - url
+        let url = await Url.findOne({pathId});
+        if(!url) return res.status(404).json({"message": "Path Id does not exist"})
+        //send response
+        return res.status(200).json({"message": "Url succesfully fetched", data: url})
+
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+}
+//decode url -
+exports.decodeUrl = async (req, res, next) => {
+    try {
+        //request - validate
+        let { url } = req.body;
+        if(!url){
+            return res.status(404).json({"message": "Url field is required"})
+        }
+        //find pathId - decode
+        let urlFound = await Url.findOne({shortUrl: url});
+        if(!urlFound) return res.status(404).json({"message": "Short Url does not exist"})
+        //decode and send
+        return res.status(200).json({"message": "Url decoded successfully", data: urlFound.originalUrl})
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+}
+
+//shorten url - encode
+exports.encodeUrl = async (req, res, next) => {
     try {
         //request - validate
         let { url } = req.body;
@@ -21,19 +71,24 @@ exports.shortUrl = async (req, res, next) => {
         }
         //get base url and code
         const base = process.env.BASE_URL;
-        const urlCode = shortid.generate();
+        const pathId = shortid.generate();
 
         //check if url already save and pass
         let urlFound = await Url.findOne({originalUrl: url});
         if(urlFound){
-            res.status(200).json({data: urlFound})
+            res.status(200).json({"message": "Url encoded already", data: urlFound.shortUrl});
+            return;
         }
         //shorten url - enode
-        const shortUrl = `${base}/${urlCode}`;
+        const shortUrl = `${base}/${pathId}`;
         let newUrl = new Url({
-            originalUrl: url
+            originalUrl: url,
+            shortUrl,
+            pathId
         })
-
+        //save new url to db
+        await newUrl.save();
+        return res.status(200).json({"message": "Url encoded succesfully", data: newUrl.shortUrl})
     } catch (error) {
         next(error)
         console.log(error)

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const UrlSchema = new mongoose.Schema({
-    id: {
+    pathId: {
         type: String,
         required: true,
     },
