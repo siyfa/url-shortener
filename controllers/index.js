@@ -1,6 +1,5 @@
 const Url = require("../models/Url");
 const { validateUrl } = require("../utils");
-const mongoose = require("mongoose");
 const shortid = require("shortid");
 const dotenv = require("dotenv");
 

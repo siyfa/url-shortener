@@ -1,11 +1,6 @@
-const express = require("express");
-const dotenv = require("dotenv");
+const express = require('express');
 
 const app = express();
-
-// configure dotenv
-dotenv.config();
-const port = process.env.PORT || 8080;
 
 //app middleware
 app.use(express.json());
@@ -16,7 +11,7 @@ app.use((req, res, done) => {
 });
 
 //routes
-app.use("/", require("./routes"));
+app.use("/", require("../routes"));
 
 //global error handlers
 app.use((err, req, res, next) => {
@@ -25,16 +20,11 @@ app.use((err, req, res, next) => {
 
     console.log("err ==> ", new Date(), "<===>", err.service, "<===>", errorMessage);
 
-    return res.status(statusCode).json({message:errorMessage});
+    return res.status(statusCode).json({ message: errorMessage });
 });
 
 app.use((req, res, next) => {
-    return res.status(404).json({message: "API endpoint not found"})
+    return res.status(404).json({ message: "API endpoint not found" })
 });
 
-//connect server
-app.listen(port, async ()=> {
-    //db connection
-    require("./db/index");
-    console.log(`Server is running at PORT ${port}`);
-})
+module.exports = app;
