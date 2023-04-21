@@ -16,9 +16,9 @@ npm run start
 ```
 ### Create a .env file in the root directory and set the following environment variables:
 ```bash
-DATABASE_URL=mongodb://localhost:27017/url-shortener-db
-PORT=3000
-BASE_URL=http://localhost:3000
+MONGO_URL=mongodb://localhost:27017/urlshortener
+PORT=8080
+BASE_URL=http://localhost:8080
 ```
 
 ## Endpoints
